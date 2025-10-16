@@ -1,0 +1,68 @@
+import numpy as np
+import random
+
+def fitness(gene_subset):
+    num_selected = np.sum(gene_subset)
+    if num_selected == 0:
+        return 1e6
+    accuracy = -abs(num_selected - 0.2 * len(gene_subset)) + 1
+    return (1 - accuracy) + (num_selected / len(gene_subset))
+
+def initialize_nests(n, gene_count):
+    return [np.random.randint(0, 2, gene_count) for _ in range(n)]
+
+def levy_flight(nest, alpha):
+    new_nest = nest.copy()
+    for i in range(len(nest)):
+        if random.random() < alpha:
+            new_nest[i] = 1 - new_nest[i]
+    return new_nest
+
+def cuckoo_search(n, pa, alpha, maxgen, gene_count):
+    nests = initialize_nests(n, gene_count)
+    fitness_vals = [fitness(nest) for nest in nests]
+
+    best_nest = nests[np.argmin(fitness_vals)]
+    best_fitness = min(fitness_vals)
+
+    for gen in range(maxgen):
+        new_nests = []
+        for nest in nests:
+            new_nest = levy_flight(nest, alpha)
+            new_nests.append(new_nest)
+
+        new_fitness_vals = [fitness(n) for n in new_nests]
+
+        for i in range(n):
+            if new_fitness_vals[i] < fitness_vals[i]:
+                nests[i] = new_nests[i]
+                fitness_vals[i] = new_fitness_vals[i]
+
+        for i in range(n):
+            if random.random() < pa:
+                nests[i] = np.random.randint(0, 2, gene_count)
+                fitness_vals[i] = fitness(nests[i])
+
+        current_best_idx = np.argmin(fitness_vals)
+        if fitness_vals[current_best_idx] < best_fitness:
+            best_fitness = fitness_vals[current_best_idx]
+            best_nest = nests[current_best_idx]
+
+        print(f"Generation {gen+1}: Best Fitness = {best_fitness:.4f}")
+
+    return best_nest, best_fitness
+
+gene_count = int(input("Enter number of genes in dataset: "))
+sample_count = int(input("Enter number of samples (not used in this demo): "))
+
+n = 25
+pa = 0.25
+alpha = 0.05
+maxgen = 5
+
+best_genes, best_fit = cuckoo_search(n, pa, alpha, maxgen, gene_count)
+
+print("\nBest gene subset found:")
+print(best_genes)
+print(f"Number of selected genes: {np.sum(best_genes)}")
+print(f"Best fitness: {best_fit:.4f}")

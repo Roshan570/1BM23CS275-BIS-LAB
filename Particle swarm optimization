@@ -1,0 +1,44 @@
+import random
+
+# Function to optimize
+def f(x):
+    return x**2 - 4*x + 4
+
+# PSO Parameters
+w = 0.5       # inertia weight
+c1 = 1.0      # cognitive parameter
+c2 = 1.0      # social parameter
+
+# Initial particle (single-variable PSO like your notebook)
+x = -6.6791                # starting value (matches your Iteration 1)
+v = 0                      # initial velocity
+pbest = x                  # personal best
+gbest = x                  # global best
+
+print("\n--- PSO Optimization Table ---")
+print("{:<12} | {:<12} | {:<12}".format("Iteration", "x", "f(x)"))
+print("-" * 40)
+
+for i in range(1, 11):
+
+    # Evaluate function
+    fx = f(x)
+
+    # Update personal and global best
+    if fx < f(pbest):
+        pbest = x
+    if fx < f(gbest):
+        gbest = x
+
+    # Print iteration row
+    print("{:<12} | {:<12.5f} | {:<12.4f}".format(i, x, fx))
+
+    # Random coefficients
+    r1 = random.random()
+    r2 = random.random()
+
+    # PSO velocity update
+    v = w*v + c1*r1*(pbest - x) + c2*r2*(gbest - x)
+
+    # Position update
+    x = x + v

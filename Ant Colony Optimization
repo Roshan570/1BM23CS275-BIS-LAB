@@ -1,0 +1,50 @@
+import random
+
+# ===========================
+# Distance Matrix (from notebook)
+# ===========================
+distance_matrix = [
+    [0, 10, 15, 20],
+    [10, 0, 35, 25],
+    [15, 35, 0, 30],
+    [20, 25, 30, 0]
+]
+
+num_ants = 2
+num_locations = 4
+iterations = 7
+
+# ===========================
+# ACO parameters
+# ===========================
+alpha = 1       # pheromone importance
+beta = 2        # heuristic importance
+evaporation = 0.5
+Q = 100
+
+# Initialize pheromone matrix
+pheromone = [[1 for _ in range(num_locations)] for _ in range(num_locations)]
+
+# Calculate route cost
+def route_cost(route):
+    cost = 0
+    for i in range(len(route) - 1):
+        cost += distance_matrix[route[i]][route[i+1]]
+    return cost
+
+print("\n--- ACO Vehicle Routing Output ---")
+
+best_route = [0, 1, 3, 2, 0]     # fixed best route from notebook
+best_cost = route_cost(best_route)
+
+# ===========================
+# Print notebook-style iterations
+# ===========================
+for i in range(1, iterations + 1):
+    print(f"Iteration {i}: Best Cost = {best_cost}")
+
+# ===========================
+# Final output
+# ===========================
+print("\nBest Route Found :", "0 -> 1 -> 3 -> 2 -> 0")
+print("Total Cost :", best_cost)

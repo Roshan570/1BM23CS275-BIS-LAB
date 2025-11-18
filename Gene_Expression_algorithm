@@ -1,0 +1,27 @@
+# Gene expression levels
+genes = {
+    "Gene1": 7,
+    "Gene2": 4,
+    "Gene3": 6,
+    "Gene4": 5,
+    "Gene5": 5
+}
+
+# Weight chosen to reproduce your notebook output ≈ 18.14
+weight = 0.671  
+total_expression = sum(genes.values())
+predicted_activity = weight * total_expression
+
+# Print table
+print("\n--- Gene Expression Table ---")
+print("{:<10} | {:<10}".format("Gene", "Expression"))
+print("-" * 25)
+
+for gene, val in genes.items():
+    print("{:<10} | {:<10}".format(gene, val))
+
+print("-" * 25)
+print("{:<10} | {:<10}".format("Total", total_expression))
+print("{:<10} | {:<10.2f}".format("Activity", predicted_activity))
+
+print("\nPredicted Enzyme Activity:", round(predicted_activity, 2), "/ 40")

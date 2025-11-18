@@ -1,0 +1,119 @@
+import random
+import math
+
+# ---- PARAMETERS BASED ON YOUR PAGE ----
+POP_SIZE = 6
+GENERATIONS = 5
+MUTATION_RATE = 0.3
+
+cities = {
+    "A": (0, 10),
+    "B": (8, 9),
+    "C": (4, 2),
+    "D": (6, 1),
+    "E": (3, 8)
+}
+
+# ----------------------------------------------------------
+# Distance between two cities
+# ----------------------------------------------------------
+def distance(city1, city2):
+    x1, y1 = cities[city1]
+    x2, y2 = cities[city2]
+    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)
+
+# ----------------------------------------------------------
+# Total distance of a route (fitness)
+# ----------------------------------------------------------
+def route_distance(route):
+    dist = 0
+    for i in range(len(route)):
+        dist += distance(route[i], route[(i + 1) % len(route)])
+    return dist
+
+# ----------------------------------------------------------
+# Create a random route
+# ----------------------------------------------------------
+def create_route():
+    route = list(cities.keys())
+    random.shuffle(route)
+    return route
+
+# ----------------------------------------------------------
+# Ordered Crossover (OX)
+# ----------------------------------------------------------
+def crossover(parent1, parent2):
+    start = random.randint(0, len(parent1) - 2)
+    end = random.randint(start + 1, len(parent1) - 1)
+
+    child = [None] * len(parent1)
+    child[start:end] = parent1[start:end]
+
+    p2_index = 0
+    for i in range(len(child)):
+        if child[i] is None:
+            while parent2[p2_index] in child:
+                p2_index += 1
+            child[i] = parent2[p2_index]
+    return child
+
+# ----------------------------------------------------------
+# Swap mutation
+# ----------------------------------------------------------
+def mutate(route):
+    if random.random() < MUTATION_RATE:
+        i, j = random.sample(range(len(route)), 2)
+        route[i], route[j] = route[j], route[i]
+    return route
+
+# ----------------------------------------------------------
+# Select parent using tournament selection
+# ----------------------------------------------------------
+def select(population):
+    a, b = random.sample(population, 2)
+    return a if route_distance(a) < route_distance(b) else b
+
+# ----------------------------------------------------------
+# Genetic Algorithm Main Loop
+# ----------------------------------------------------------
+def genetic_algorithm():
+    # Set seed for reproducible output like your notebook
+    random.seed(42)
+
+    population = [create_route() for _ in range(POP_SIZE)]
+
+    print("Initial Population:")
+    for p in population:
+        print(p, "Distance =", route_distance(p))
+    print("\n")
+
+    for gen in range(GENERATIONS):
+        new_population = []
+
+        # Elitism
+        best = min(population, key=route_distance)
+        new_population.append(best)
+
+        # Create rest of population
+        while len(new_population) < POP_SIZE:
+            parent1 = select(population)
+            parent2 = select(population)
+            child = crossover(parent1, parent2)
+            child = mutate(child)
+            new_population.append(child)
+
+        population = new_population
+
+        print(f"Generation {gen+1}:")
+        for p in population:
+            print(p, "Distance =", route_distance(p))
+        print("\n")
+
+    # Final best
+    best_final = min(population, key=route_distance)
+    print("Best Route Found:", best_final)
+    print("Total Distance:", route_distance(best_final))
+
+
+# Run the algorithm
+genetic_algorithm()

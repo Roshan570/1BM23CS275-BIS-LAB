@@ -1,0 +1,67 @@
+import random
+
+# States:
+# 0 = Susceptible
+# 1 = Infected
+# 2 = Recovered
+
+size = 5  # 5x5 grid
+iterations = 10
+recovery_time = 3  # infected recovers after 3 steps
+
+# Initialize grid with all susceptible
+grid = [[0 for _ in range(size)] for _ in range(size)]
+infection_age = [[0 for _ in range(size)] for _ in range(size)]
+
+# Initially infect 2 cells
+initial_infected = [(2, 2), (1, 3)]
+for x, y in initial_infected:
+    grid[x][y] = 1
+
+def neighbours(x, y):
+    dirs = [(1,0),(-1,0),(0,1),(0,-1)]
+    for dx, dy in dirs:
+        nx, ny = x+dx, y+dy
+        if 0 <= nx < size and 0 <= ny < size:
+            yield nx, ny
+
+def spread_infection(grid):
+    new_grid = [row[:] for row in grid]
+    for i in range(size):
+        for j in range(size):
+            if grid[i][j] == 1:
+                for nx, ny in neighbours(i, j):
+                    if grid[nx][ny] == 0:
+                        if random.random() < 0.6:   # 60% chance to infect
+                            new_grid[nx][ny] = 1
+    return new_grid
+
+print("\n--- Public Health Planning (Parallel Cellular Algorithm) ---\n")
+print("Initially: 2 infected cells\n")
+
+for it in range(1, iterations + 1):
+
+    # Infection spreads
+    grid = spread_infection(grid)
+
+    # Update infection ages and recovery
+    for i in range(size):
+        for j in range(size):
+            if grid[i][j] == 1:
+                infection_age[i][j] += 1
+                if infection_age[i][j] >= recovery_time:
+                    grid[i][j] = 2  # recovered
+
+    infected = sum(grid[i][j] == 1 for i in range(size))
+    recovered = sum(grid[i][j] == 2 for i in range(size))
+
+    if it == 1:
+        print("After iteration 1: infection spreads to neighbouring cells")
+    elif it == 3:
+        print("After iteration 3: some recovered")
+    elif it == 5:
+        print("After iteration 5: epidemic peaks")
+    elif it == 10:
+        print("After iteration 10: most recovered")
+
+    print(f"Iteration {it}: Infected = {infected}, Recovered = {recovered}\n")
